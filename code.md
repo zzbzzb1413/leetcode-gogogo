@@ -1,6 +1,687 @@
+## 常见问题汇总
+
+new 和 delete要连着用。
+
+237 
+
+## 链表
+
+```c++
+struct ListNode {
+     int val;
+     ListNode *next;
+     ListNode(int x) : val(x), next(NULL) {}
+};
+```
+
+
+
+### 19. Remove Nth Node From End of List
+
+#### 题目描述
+
+​		删掉倒数第几个链表节点
+
+#### 解法
+
+​		两个指针，一个先走k步。然后两个指针同时走，第一个指针走到最后一个点，将第二个指针的next删除即可。
+
+```c++
+class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode *dummy = new ListNode(-1);
+        dummy->next = head;
+        ListNode *p = dummy, *q = dummy;
+        for(int i=0; i<n; i++)
+            p = p->next;
+        while(p->next){
+            p = p->next;
+            q = q->next;
+        }
+        ListNode *tmp = q->next;
+        q->next = q->next->next;
+        delete tmp;
+        return dummy->next;
+    }
+};
+```
+
+### * 24. Swap Nodes in Pairs
+
+#### 题目描述
+
+​		两两节点交换。
+
+#### 解法
+
+​		使用pre节点，指向下一组（两个节点，或只剩一个）节点的第二个。然后两两交换，直到不需要交换为止。
+
+```c++
+class Solution {
+public:
+    ListNode* swapPairs(ListNode* head) {
+        ListNode *first = head, *second, *dummy = new ListNode(-1), *pre = dummy;
+        while(1){
+            if(!first || !first->next){
+                pre->next = first;
+                break;
+            }
+            second = first->next;
+            pre->next = second;
+            first->next = second->next;
+            second->next = first;
+            pre = first;
+            
+            first = first->next;
+        }
+        return dummy->next;
+    }
+};
+```
+
+
+
+### * 61. Rotate List
+
+#### 题目描述
+
+​		将链表旋转
+
+#### 解法
+
+​		k可能很大，需要先取模。两种办法，第一种是考虑需要找到倒数第k % len个节点（从后面看），一种是(len - k % len) % len从前面看。
+
+``` c++
+class Solution {
+public:
+    ListNode* rotateRight(ListNode* head, int k) {
+        int len = 0;
+        ListNode* now = head;
+        for(; now; now=now->next)
+            len ++;
+        if(!len)
+            return NULL;
+        k = (len - k % len) % len;
+        if(!k)
+            return head;
+        now = head;
+        for(int i=0; i<k-1; i++)
+            now = now->next;
+        ListNode *ans = now->next;
+        now->next=NULL;
+        for(now=ans; now->next!=NULL; now=now->next);
+        now->next= head;
+        return ans;
+    }
+};
+```
+
+
+
+### 83. Remove Duplicates from Sorted List
+
+#### 题目描述
+
+​		删除重复节点
+
+#### 解法 
+
+​		一次遍历，节点的值和上一个不一样，这个节点不删。
+
+```c++
+class Solution {
+public:
+    ListNode* deleteDuplicates(ListNode* head) {
+        if(!head)
+            return NULL;
+        ListNode *pre = head, *now = head->next; 
+        for(; now; now=now->next){
+            if(now->val!=pre->val)
+                pre = now;
+            else
+                pre->next = now->next;
+        }
+        return head;
+    }
+};
+```
+
+### 160. Intersection of Two Linked Lists
+
+#### 题目描述
+
+​		求两个链表的交点，如无交点，返回空指针。
+
+#### 解法
+
+​		两个指针分别从两个链表开头遍历，若走到某个位置两个指针相等，则退出。如果在退出之前，走到空指针，下一步从空指针到另一个链表的头。
+
+``` c++
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        ListNode *p = headA, *q = headB;
+        while(p != q){
+            if(!p)
+                p = headB;
+            else
+                p = p->next;
+            if(!q)
+                q = headA;
+            else
+                q = q->next;
+        }
+        return p;
+    }
+};
+```
+
+#### 注意
+
+​		为什么不能走到空指针，本步骤直接跳到下一个指针呢？
+
+​		因为两个链表可能没有交点，走到空指针需要等待一下，等到另一个节点走完当前步，判断两个点是不是都为空，如果都为空，则没有交点，如果不都为空，则继续往前走，等待退出条件。
+
+### 206. Reverse Linked List
+
+#### 题目描述
+
+​		反转链表
+
+#### 解法
+
+``` c++
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        ListNode *dummy = new ListNode(-1);
+        for(ListNode *now=head; now!=NULL; ){
+            ListNode *tmp = now->next;
+            now->next = dummy->next;
+            dummy->next = now;
+            now = tmp;
+        }
+        return dummy->next;
+    }
+};
+```
+
+
+
+### * 237. Delete Node in a Linked List 
+
+#### 题目描述
+
+​		删除给定节点
+
+#### 解法
+
+​		将下一个点的值复制到本节点，再删除当前节点，骚啊。
+
+``` c++
+class Solution {
+public:
+    void deleteNode(ListNode* node) {
+        node->val = node->next->val;
+        node->next = node->next->next;
+    }
+};
+```
+
+
+
+## 树
+
+### 树的数据结构
+
+注意某些时候有father节点。
+
+```c++
+Definition for a binary tree node.
+struct TreeNode {
+     int val;
+     TreeNode *left;
+     TreeNode *right;
+     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+```
+
+### 94.  Binary Tree Inorder Traversal
+
+#### 题目描述
+
+​		中序遍历二叉树，返回一个vector
+
+#### 解法
+
+​		非递归，使用栈
+
+```c++
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        vector<int> ans;
+        stack<TreeNode *> s;
+        TreeNode *now = root;
+        while(now){
+            s.push(now);
+            now = now->left;
+        }
+        while(!s.empty()){
+            now = s.top();
+            ans.push_back(now->val);
+            s.pop();
+
+            now = now->right;
+            while(now){
+                s.push(now);
+                now = now->left;
+            }
+        }
+        return ans;
+    }
+};
+```
+
+
+
+### 98.  Validate Binary Search Tree
+
+#### 题目描述
+
+​		验证一个树是不是二叉搜索树，注意，某节点和左右子节点相等也不符合要求。
+
+#### 解法
+
+​		递归，对每一个节点，有一个合法取值的范围，不在这个范围之内，即为不符合要求。
+
+```c++
+class Solution {
+public:
+    bool check(TreeNode *node, long mx, long mn){
+        if(!node)
+            return true;
+        if(node->val >= mx || node->val<=mn)
+            return false;
+        return check(node->left, node->val, mn) && check(node->right, mx, node->val);
+    }
+    bool isValidBST(TreeNode* root) {
+        return check(root, LONG_MAX, LONG_MIN);
+    }
+};
+```
+
+#### 注意
+
+​		可能数据会卡INT_MAX，所以可以将一开始范围限定在LONG_MAX.
+
+### 101.  Symmetric Tree
+
+#### 题目描述
+
+​		判断一棵树是否为左右对称
+
+#### 解法
+
+​		递归
+
+``` c++
+class Solution {
+public:
+    bool check(TreeNode *p, TreeNode *q){
+        if(!p && !q) 
+            return true;
+        if(!p || !q)
+            return false;
+        if(p->val != q->val)
+            return false;
+        return check(p->left, q->right) && check(p->right, q->left);
+    }
+    bool isSymmetric(TreeNode* root) {
+        if(!root)
+            return true;
+        return check(root->left, root->right);
+    }
+};
+```
+
+
+
+### 102. Binary Tree Level Order Traversal
+
+#### 题目描述
+
+​		分层打印二叉树
+
+#### 解法
+
+​		两个队列，分别存节点和当前节点的深度。当前节点深度大于之前节点的最大深度时，将单层节点存进答案，将单层节点数组tmp清空，跳出循环之后，也要将最后一层的节点存进答案。
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        vector<vector<int> > ans;
+        vector<int> tmp;
+        queue<TreeNode*> q;
+        queue<int> deep;
+        if(!root)
+            return ans;
+        q.push(root);
+        deep.push(1);
+        int now_max = 1;
+        while(!q.empty()){
+            int now_deep = deep.front();
+            TreeNode *now = q.front();
+            q.pop();
+            deep.pop();
+            
+            if(now_deep > now_max){
+                now_max ++;
+                ans.push_back(tmp);
+                vector<int>().swap(tmp);
+            }
+            tmp.push_back(now->val);
+            if(now->left){
+                q.push(now->left);
+                deep.push(now_deep + 1);
+            }
+            if(now->right){
+                q.push(now->right);
+                deep.push(now_deep + 1);
+            }
+        }
+        ans.push_back(tmp);
+        return ans;
+    }
+};
+```
+
+### 105. Construct Binary Tree from Preorder and Inorder Traversal
+
+#### 题目描述
+
+​		根据中序遍历，先序遍历的结果构建树
+
+#### 解法
+
+​		先序遍历的第一个点一定是根节点，在中序遍历序列找到这个值，他的左边是左子树，右边是右子树。根据这个将树不断往下分。
+
+```  c++
+class Solution {
+public:
+    unordered_map<int, int> hash;
+    TreeNode* dfs(vector<int>& pre, vector<int>& in, int l1, int r1, int l2, int r2){
+        // 注意边界条件的判断
+        if(l1 > r1)
+            return NULL;
+        TreeNode *node = new TreeNode(pre[l1]);
+
+        int len = hash[pre[l1]] - l2;
+        node->left = dfs(pre, in, l1 + 1, l1 + len, l2, l2 + len - 1);
+        node->right = dfs(pre, in, l1 + len + 1, r1, l2 + len + 1, r2);
+
+        return node;
+    }
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        for(int i=0; i<inorder.size(); i++)
+            hash[inorder[i]] = i;
+        return dfs(preorder, inorder, 0, preorder.size() - 1, 0, inorder.size() - 1);
+    }
+};
+```
+
+
+
+#### 注意
+
+​		注意返回条件，当l>r的时候，就是空了。
+
+### 124. Binary Tree Maximum Path Sum
+
+#### 题目描述
+
+​		给一个二叉树，返回这个树任意路径上数字的最大的和，不必经过根节点，不必到达叶子节点
+
+#### 解法
+
+​		递归，对每一个点，求一个以他为最上面节点的路径和。
+
+``` c++
+class Solution {
+public:
+    int dfs(TreeNode* node, int& ans){
+        if(!node)
+            return 0;
+        int left = max(0, dfs(node->left, ans));
+        int right = max(0, dfs(node->right, ans));
+        
+        ans = max(ans,left + right + node->val);
+        return max(left, right) + node->val;
+    }
+    int maxPathSum(TreeNode* root) {
+        if(!root)
+            return 0;
+        int ans = root->val;
+        dfs(root, ans);
+        return ans;
+    }
+};
+```
+
+#### 注意
+
+​		注意left right如果是负数，则不加上。
+
+### 173. Binary Search Tree Iterator
+
+#### 题目描述
+
+​		很无聊的题目，将中序遍历拆成接口
+
+#### 解法
+
+​		非递归的中序遍历
+
+```c++
+class BSTIterator {
+public:
+    stack<TreeNode *> s;
+    BSTIterator(TreeNode* root) {
+        TreeNode *now = root;
+        while(now){
+            s.push(now);
+            now = now->left;
+        }
+    }
+    
+    /** @return the next smallest number */
+    int next() {
+        TreeNode *now = s.top();
+        int ans = now->val;
+        s.pop();
+        now = now->right;
+        while(now){
+            s.push(now);
+            now = now->left;
+        }
+        return ans;
+    }
+    
+    /** @return whether we have a next smallest number */
+    bool hasNext() {
+        if(s.empty())
+            return false;
+        return true;
+    }
+};
+```
+
+
+
+### 236.  Lowest Common Ancestor of a Binary Tree
+
+#### 题目描述
+
+​		找到两个节点的最低公共祖先
+
+#### 解法
+
+​		从根节点进行递归，对于每一个节点返回左右子节点是否含有目标要求的p/q节点。如果left + right + now == 2，说明这个点处是公共祖先。且由于递归的作用，搜索的位置是叶子节点到根节点的，满足最低公共祖先的要求。当找到这样的祖先之后，不可能left + right + now == 2了，因为这个子节点只返回1，无法加到2.
+
+``` c++
+class Solution {
+public:
+    int dfs(TreeNode* node, TreeNode* p, TreeNode* q, TreeNode*& ans){
+        if(!node)
+            return 0;
+        int left = dfs(node->left, p, q, ans);
+        int right = dfs(node->right, p, q, ans);
+        
+        int now = (node->val == p->val || node->val == q->val);
+        if(now + left + right == 2)
+            ans = node;
+        return now + left + right > 0? 1: 0;
+            
+    }
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        TreeNode *ans = NULL;
+        dfs(root, p, q, ans);
+        return ans;
+    }
+};
+```
+
+### 297. Serialize and Deserialize Binary Tree
+
+#### 题目描述
+
+​		对二叉树先字符串编码，再解码
+
+#### 解法
+
+​		无聊的一匹，注意负号。
+
+```c++
+class Codec {
+public:
+
+    // Encodes a tree to a single string.
+    string serialize(TreeNode* root) {
+        string s = "[";
+        queue<TreeNode*> q;
+        q.push(root);
+        while(!q.empty()){
+            TreeNode *tmp = q.front();
+            q.pop();
+            if(!tmp){
+                s += "null,";
+                continue;
+            }
+            else
+                s += to_string(tmp->val) + ',';
+            q.push(tmp->left);
+            q.push(tmp->right);
+        }
+        s += ']';
+        return s;
+    }
+    int convert(string &data, int &i){
+        int len = data.size() - 1;
+        int flag = 1, num = 0;
+        if(data[i] == '-'){
+            flag = -1;
+            i++;
+        }
+        while(i<len && data[i]>='0' && data[i]<='9'){
+            num = num * 10 + (data[i] - '0');
+            i ++;
+        }
+        num *= flag;
+        i++;
+        return num;
+    }
+    // Decodes your encoded data to tree.
+    TreeNode* deserialize(string data) {
+        int i = 1;
+        if(data[i] == 'n')
+            return NULL;
+        queue<TreeNode*> q;
+        int len = data.size() - 1;
+        int num = convert(data, i);
+        TreeNode *root = new TreeNode(num), *now;
+        q.push(root);
+        while(!q.empty()){
+            now = q.front();
+            q.pop();
+            if(data[i] == 'n'){
+                i += 5;
+            }
+            else{
+                num = convert(data, i);
+                now->left = new TreeNode(num);
+                q.push(now->left);
+            }
+            if(data[i] == 'n'){
+                i += 5;
+            }
+            else{
+                num = convert(data, i);
+                now->right = new TreeNode(num);
+                q.push(now->right);
+            }
+        }
+        return root;
+    }
+};
+```
+
+#### 注意
+
+​		注意负号！！负号！！
+
+### 543. Diameter of Binary Tree
+
+#### 题目描述
+
+​		求二叉树中，任意两个节点的最长距离
+
+#### 解法
+
+​		递归求解，对每一个节点，求一个以它为最上面点的（“根节点”）的路径长度，遇见更大的距离，则刷新。
+
+```c++
+class Solution {
+public:
+    int dfs(TreeNode* node, int &ans){
+        if(!node)
+            return 0;
+        int left = dfs(node->left, ans);
+        int right = dfs(node->right, ans);
+        int now = left + right;
+        
+        ans = max(now, ans);
+        return max(left, right) + 1;
+    }
+    
+    int diameterOfBinaryTree(TreeNode* root) {
+        if(!root)
+            return 0;
+        int ans = 0;
+        dfs(root, ans);
+        return ans;
+    }
+};
+```
+
+
+
+
+
 ## 二分
 
-### 69.sqrt(x)
+### 69. sqrt(x)
 
 #### 题目描述
 
