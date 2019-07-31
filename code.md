@@ -14,6 +14,56 @@ struct ListNode {
 };
 ```
 
+### 2. Add Two Numbers
+
+#### 题目描述
+
+​		两个链表，返回一个新的链表，每个值是输入链表对应的和
+
+#### 解法
+
+​		遍历，注意进位，注意某个链表已经走到头
+
+```c++
+class Solution {
+public:
+    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+        ListNode *p = l1, *q = l2, *dummy = new ListNode(-1), *pre = dummy;
+        int flag = 0, num;
+        while(p && q){
+            num = (flag + p->val + q->val) % 10;
+            flag = (flag + p->val + q->val) / 10;
+            p = p->next;
+            q = q->next;
+            ListNode *tmp = new ListNode(num);
+            pre->next = tmp;
+            pre = pre->next;
+        }
+        while(p){
+            num = (flag + p->val) % 10;
+            flag = (flag + p->val) / 10;
+            p = p->next;
+            ListNode *tmp = new ListNode(num);
+            pre->next = tmp;
+            pre = pre->next;
+        }
+        while(q){
+            num = (flag + q->val) % 10;
+            flag = (flag + q->val) / 10;
+            q = q->next;
+            ListNode *tmp = new ListNode(num);
+            pre->next = tmp;
+            pre = pre->next;
+        }
+        if(flag){
+            ListNode *tmp = new ListNode(1);
+            pre->next = tmp;
+        }
+        return dummy->next;
+    }
+};
+```
+
 
 
 ### 19. Remove Nth Node From End of List
@@ -675,6 +725,46 @@ public:
 };
 ```
 
+## 动态规划
+
+### * 10. Regular Expression Matching
+
+#### 题目描述
+
+​		正则表达式，含有. *两种匹配符。
+
+#### 解法 
+
+​		dp深搜+记忆化搜索
+
+```c++
+class Solution {
+public:
+    vector<vector<int> > match;
+    bool check(string s, string p, int x, int y, int l1, int l2){
+        if(match[x][y] != -1)
+            return match[x][y];
+        if(y == l2){
+            if(x == l1)
+                return true;
+            match[x][y] = false;
+            return match[x][y];
+        }
+        bool now = x < l1 && (s[x] == p[y] || p[y] == '.');
+        if(y+1<l2 && p[y+1]=='*')
+            match[x][y] = (now && check(s, p, x+1, y, l1, l2)) || check(s, p, x, y+2, l1, l2);
+        else
+            match[x][y] = now && check(s, p, x+1, y+1, l1, l2);
+        return match[x][y];
+    }
+    bool isMatch(string s, string p) {
+        int l1 = s.size(), l2 = p.size();
+        match = vector<vector<int> >(l1+1, vector<int>(l2+1, -1));
+        return check(s, p, 0, 0, l1, l2);   
+    }
+};
+```
+
 
 
 
@@ -794,9 +884,99 @@ public:
 
 
 
+## 哈希
 
+### 1. Two Sum 
 
+求满足目标和数字的两个下标
 
+```c++
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        int len = nums.size();
+        vector<int> ans;
+        unordered_map<int, int> pos;
+        for(int i=0; i<len; i++){
+            if(pos.find(target - nums[i]) != pos.end()){
+                ans.push_back(pos[target - nums[i]]);
+                ans.push_back(i);
+                break;
+            }
+            pos[nums[i]] = i;
+        }
+        return ans;
+    }
+};
+```
 
+### 3. Longest Substring Without Repeating Characters
 
+#### 题目介绍
+
+​		求最长的不含重复字符的连续子序列
+
+#### 解法
+
+​		使用哈希表，记录上一次出现某字符的位置。新来一个字符，如果之前已经出现过，则判断上一次的位置和当前合法的start下标哪个更大，更新start下标，然后求一个以当前字符为结尾的最长连续序列长度
+
+```c++
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        unordered_map<int, int> pos;
+        int start = -1, ans = 0;
+        for(int i=0; i<s.size(); i++){
+            if(pos.find(s[i]) != pos.end())
+                start = max(start, pos[s[i]]);
+            ans = max(ans, i - start);
+            pos[s[i]] = i;
+        }
+        return ans;
+    }
+};
+```
+
+## 暴力枚举
+
+### * 5. Longest Palindromic Substring
+
+#### 题目描述
+
+​		输入一个字符串s，返回其中的最长子字符串。
+
+#### 解法
+
+​		暴力枚举，分两种情况，一种为这个字符串为奇数长度，一种为偶数长度。这两种情况导致了中心是一个还是两个字符，有所区别。
+
+```c++
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        int res = 0;
+        string ret;
+        for(int i=0; i<s.size(); i++){
+            for(int j=0; i - j >= 0 && i + j < s.size(); j++){
+                if(s[i-j] == s[i+j]){
+                    if(2 * j + 1 > res){
+                        res = 2 * j + 1;
+                        ret = s.substr(i - j, res);
+                    }
+                }
+                else break;
+            }
+            for(int j=i, k=i+1; j>=0 && k<s.size(); j--, k++){
+                if(s[j] == s[k]){
+                    if(k-j+1>res){
+                        res = k - j + 1;
+                        ret = s.substr(j, res);
+                    }
+                }
+                else  break;
+            }
+        }
+        return ret;
+    }
+};
+```
 
