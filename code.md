@@ -2,9 +2,19 @@
 
 new 和 delete要连着用。
 
-237 
+nums.size()是无符号数，要先len  = nums.size(), 再len - 1. 如果减完小于0，会溢出。
+
+如果需要和数组下一位比较，有需要可以在数组末尾加一个无关的元素。见 无聊的题目 - 38
+
+## 需要留意的题目
+
+33 237 
 
 ## 链表
+
+### Pass
+
+21 
 
 ```c++
 struct ListNode {
@@ -725,6 +735,39 @@ public:
 };
 ```
 
+## 贪心
+
+###　11. Container With Most Water
+
+#### 题目描述
+
+​		有一排高度，求能存水最多的量。（与最大矩形不同）
+
+####　解法
+
+​		贪心法，双指针分别指向数组头尾，指向更小数的指针向中间缩。
+
+```c++
+class Solution {
+public:
+    int maxArea(vector<int>& height) {
+        int l = 0, r = height.size() - 1, ans = 0;
+        while(l < r){
+            ans = max(ans, (r - l) * min(height[l], height[r]));
+            if(height[l] <= height[r])
+                l ++;
+            else
+                r --;
+        }
+        return ans;
+    }
+};
+```
+
+
+
+
+
 ## 动态规划
 
 ### * 10. Regular Expression Matching
@@ -765,11 +808,143 @@ public:
 };
 ```
 
+## 搜索
 
+###　17. Letter Combinations of a Phone Number
+
+####　题目描述
+
+​		电话上的键盘转字符串，深搜。
+
+####　解法
+
+```c++
+class Solution {
+public:
+    unordered_map<int, string> hash;
+    void dfs(string num, vector<string>& ans, string tmp, int k, int len){
+        if(k == len){
+            ans.push_back(tmp);
+            return;
+        }
+        for(int i=0; i<hash[num[k]-'0'].size(); i++)
+            dfs(num, ans, tmp + hash[num[k]-'0'][i], k+1, len);
+    }
+    
+    vector<string> letterCombinations(string digits) {
+        vector<string> ans;
+        if(!digits.size()) 
+            return ans;
+        hash[2] = "abc";
+        hash[3] = "def";
+        hash[4] = "ghi";
+        hash[5] = "jkl";
+        hash[6] = "mno";
+        hash[7] = "pqrs";
+        hash[8] = "tuv";
+        hash[9] = "wxyz";
+        string tmp = "";
+        int len = digits.size();
+        dfs(digits, ans, tmp, 0, digits.size());
+        return ans;
+    }
+};
+```
+
+### 22. Generate Parentheses
+
+#### 题目描述
+
+​		输出所有符合要求的括号序列
+
+#### 解法
+
+​		深搜
+
+```c++
+class Solution {
+public:
+    void dfs(vector<string>& ans, string tmp, int l, int r, int n){
+        if(l == r && l == n){
+            ans.push_back(tmp);
+            return;
+        }
+        if(l < n)
+            dfs(ans, tmp + '(', l + 1, r, n);
+        if(l > r)
+            dfs(ans, tmp + ')', l, r + 1, n);
+            
+        
+    }
+    vector<string> generateParenthesis(int n) {
+        vector<string> ans;
+        string tmp = "";
+        dfs(ans, tmp, 0, 0, n);
+        return ans;
+    }
+};
+```
+
+### d
 
 
 
 ## 二分
+
+### 23. Merge k Sorted Lists
+
+#### 题目描述
+
+​		对k个排序链表做归并
+
+#### 解法
+
+​		二分归并
+
+```c++
+class Solution {
+public:
+    ListNode* merge(vector<ListNode*>& lists, int l, int r){
+        if(l >= r)
+            return lists[l];
+        int mid = (l + r) / 2;
+        ListNode *left = merge(lists, l, mid);
+        ListNode *right = merge(lists, mid + 1, r);
+        
+        ListNode *p = left, *q = right, *dummy = new ListNode(-1), *pre = dummy;
+        while(p && q){
+            if(p->val <= q->val){
+                pre->next = p;
+                p = p->next;
+                pre = pre->next;
+            }
+            else{
+                pre->next = q;
+                q = q->next;
+                pre = pre->next;
+            }
+        }
+        while(p){
+            pre->next = p;
+            p = p->next;
+            pre = pre->next;
+        }
+        while(q){
+            pre->next = q;
+            q = q->next;
+            pre = pre->next;
+        }
+        return dummy->next;
+    }
+    ListNode* mergeKLists(vector<ListNode*>& lists) {
+        if(!lists.size())
+            return NULL;
+        return merge(lists, 0, lists.size()-1);
+    }
+};
+```
+
+
 
 ### 69. sqrt(x)
 
@@ -803,6 +978,58 @@ public:
 #### 注意
 
 ​		二分的时候，注意中点的取法，因为有可能当两个数字的时候，中点永远为左侧，而左侧符合要求，造成死循环。而加了1可能会int越界，故需要+1ll（long long）
+
+### 34. Find First and Last Position of Element in Sorted Array
+
+####　题目描述
+
+​		一个排序数组，返回一个数字的第一次/最后一次出现的位置
+
+#### 解法
+
+​		二分
+
+```c++
+class Solution {
+public:
+    vector<int> searchRange(vector<int>& nums, int target) {
+        int l = 0, r = nums.size() - 1, mid, mmid;
+        while(l<=r){
+            mid = (l + r) / 2;
+            if(nums[mid] == target)
+                break;
+            if(nums[mid] > target)
+                r = mid - 1;
+            else
+                l = mid + 1;
+        }
+        if(l > r)
+            return vector<int>{-1, -1};
+        l = 0, r = mid;
+        while(l < r){
+            mmid = (l + r) / 2;
+            if(nums[mmid] < target)
+                l = mmid + 1;
+            else
+                r = mmid;
+        }
+        vector<int> ans;
+        ans.push_back(l);
+        l = mid, r = nums.size() - 1;
+        while(l < r){
+            mmid = (l + r + 1) / 2;
+            if(nums[mmid] > target)
+                r = mmid - 1;
+            else
+                l = mmid;
+        }
+        ans.push_back(l);
+        return ans;
+    }
+};
+```
+
+
 
 ### 35. Search Insert Position
 
@@ -872,7 +1099,7 @@ public:
 
 
 
-### 33. Search in Rotated Sorted Array
+### *** 33. Search in Rotated Sorted Array
 
 #### 题目描述		
 
@@ -880,7 +1107,72 @@ public:
 
 #### 解法
 
-​		
+​		这题做了好几次了，结果还是不清楚。核心思想是先确定单调的部分（即中点的位置），然后再通过条件缩小范围。
+
+```c++
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        int l = 0, r = nums.size() - 1, mid;
+        while(l <= r){
+            mid = (l + r) / 2;
+            if(nums[mid] == target)
+                break;
+            else if(nums[mid] >= nums[l]){
+                if(nums[mid] > target && nums[l] <= target)
+                    r = mid - 1;
+                else
+                    l = mid + 1;
+            }
+            else{
+                if(nums[mid] < target && nums[r] >= target)
+                    l = mid + 1;
+                else
+                    r = mid - 1;
+            }
+        }
+        if(l <= r)
+            return mid;
+        return -1;
+    }
+};
+```
+
+
+
+## 栈
+
+### 20. Valid Parentheses
+
+#### 题目描述
+
+​		验证括号序列是否合法
+
+#### 解法
+
+​		栈
+
+```c++
+class Solution {
+public:
+    bool isValid(string s) {
+        stack<char> st;
+        for(int i=0; i<s.size(); i++){
+            if(s[i] == '[' || s[i] == '(' || s[i] == '{')
+                st.push(s[i]);
+            else if(s[i] == ']' && (st.empty() || st.top() != '['))
+                return false;
+            else if(s[i] == '}' && (st.empty() || st.top() != '{'))
+                return false;
+            else if(s[i] == ')' && (st.empty() || st.top() != '('))
+                return false;
+            else
+                st.pop();
+        }
+        return st.empty();
+    }
+};
+```
 
 
 
@@ -937,6 +1229,60 @@ public:
 };
 ```
 
+## 双指针
+
+### 15. 3Sum
+
+#### 题目描述
+
+​		给一个数组，求和为0的三元组，要求不重复。
+
+####　解法
+
+​		枚举第一个数，然后对剩下两个值进行双指针处理，注意去重。
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        vector<vector<int> > ans;
+        int len = nums.size();
+        int l, r;
+        for(int i=0; i<len-2; i++){
+            cout << i;
+            cout << "???";
+            if(i!=0 && nums[i] == nums[i-1])
+                continue;
+            l = i + 1, r = nums.size() - 1;
+            while(l < r){
+                int tmp =nums[i] + nums[l] + nums[r];
+                if(tmp == 0){
+                    vector<int>tmp{nums[i], nums[l], nums[r]};
+                    ans.push_back(tmp);
+                    while(l<r && nums[l+1] == nums[l])
+                        l++;
+                    l++;
+                }
+                else if(tmp > 0){
+                    while(r>l && nums[r-1] == nums[r])
+                        r--;
+                    r--;
+                }
+                else{
+                    while(l<r && nums[l+1] == nums[l])
+                        l++;
+                    l++;
+                }
+            }
+        }
+        return ans;
+    }
+};
+```
+
+
+
 ## 暴力枚举
 
 ### * 5. Longest Palindromic Substring
@@ -974,6 +1320,44 @@ public:
                 }
                 else  break;
             }
+        }
+        return ret;
+    }
+};
+```
+
+## 无聊的题目
+
+### 38. Count and Say
+
+#### 题目描述
+
+​		查上一个数字符串中连续出现的数字个数，拼成字符串
+
+#### 解法
+
+​		很无聊，自己看吧
+
+```c++
+class Solution {
+public:
+    string countAndSay(int n) {
+        if(n==1)
+            return "1";
+        string s = "1*", ret;
+        int count;
+        for(int i=2; i<=n; i++){
+            ret = "";
+            count = 1;    
+            for(int j=0; j<s.size() - 1; j++){
+                if(s[j] == s[j+1])
+                    count ++;
+                else{
+                    ret += to_string(count) + s[j];
+                    count = 1;
+                }
+            }
+            s = ret + '*';
         }
         return ret;
     }
