@@ -16,6 +16,8 @@ nums.size()是无符号数，要先len  = nums.size(), 再len - 1. 如果减完�
 
 21 
 
+### 数据结构
+
 ```c++
 struct ListNode {
      int val;
@@ -764,6 +766,37 @@ public:
 };
 ```
 
+## 字符串
+
+
+
+## 递推
+
+### 55. Jump Game
+
+#### 题目描述
+
+​		能不能走到台阶最后一位
+
+#### 解法
+
+​		递推
+
+```c++
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int reach = 0;
+        for(int i=0; i<=reach; i++){
+            reach = max(nums[i] + i, reach);
+            if(reach >= nums.size() - 1)
+                return true;
+        }
+        return false;
+    }
+};
+```
+
 
 
 
@@ -807,6 +840,61 @@ public:
     }
 };
 ```
+
+### 53. Maximum Subarray
+
+#### 题目描述
+
+​		和最大的连续子数组
+
+#### 解法
+
+​		一遍遍历，每次求出当前位置的最大值，更新答案
+
+```c++
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int ans = nums[0], now = nums[0];
+        for(int i=1; i<nums.size(); i++){
+            now = max(now + nums[i], nums[i]);
+            ans = max(ans, now);
+        }
+        return ans;
+    }
+};
+```
+
+### 62. Unique Paths
+
+#### 题目描述
+
+​		dp问题
+
+#### 解法
+
+```c++
+class Solution {
+public:
+    int uniquePaths(int m, int n) {
+        vector<vector<int> > dp(m + 1, vector<int>(n + 1, 0));
+        for(int i=1; i<=m; i++){
+            for(int j=1; j<=n; j++)
+                if(i==j && j==1)
+                    dp[i][j] = 1;
+                else
+                    dp[i][j] = dp[i-1][j] + dp[i][j-1];
+        }
+        return dp[m][n];
+    }
+};
+```
+
+
+
+
+
+
 
 ## 搜索
 
@@ -885,7 +973,48 @@ public:
 };
 ```
 
-### d
+### 46. Permutations
+
+#### 题目描述
+
+​		数字排列 无重复
+
+#### 解法
+
+​		深搜
+
+```c++
+class Solution {
+public:
+    vector<bool> visit;
+    void dfs(vector<int> &nums, vector<vector<int> > &ans, vector<int> tmp, int k, int n){
+        if(k==n){
+            ans.push_back(tmp);
+            return;
+        }    
+        // unordered_map<int, int> hash;
+        for(int i=0; i<nums.size(); i++){
+            // if(visit[i] || hash.find(nums[i]) != hash.end())
+            if(visit[i])
+                continue;
+            visit[i] = true;
+            // hash[nums[i]] = 1;
+            tmp.push_back(nums[i]);
+            dfs(nums, ans, tmp, k + 1, n);
+            visit[i] = false;
+            tmp.pop_back();
+        }
+    }
+    
+    vector<vector<int>> permute(vector<int>& nums) {
+        vector<vector<int> > ans;
+        vector<int> tmp;
+        visit = vector<bool>(nums.size(), false);
+        dfs(nums, ans, tmp, 0, nums.size());
+        return ans;
+    }
+};
+```
 
 
 
@@ -1174,6 +1303,37 @@ public:
 };
 ```
 
+### * 42. Trapping Rain Water
+
+#### 题目描述
+
+​		有一堆矩形，然后求能存多少水
+
+#### 解法
+
+​		单调栈
+
+```c++
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        stack<int> s;
+        int ans = 0, top;
+        for(int i=0; i<height.size(); i++){
+            while(!s.empty() && height[s.top()] < height[i]){
+                int top = s.top();
+                s.pop();
+                if(s.empty())
+                    break;
+                ans += (i - s.top() - 1) * (min(height[i], height[s.top()]) - height[top]);
+            }
+            s.push(i);
+        }
+        return ans;
+    }
+};
+```
+
 
 
 ## 哈希
@@ -1228,6 +1388,111 @@ public:
     }
 };
 ```
+
+## 区间合并
+
+### ** 56. Merge Intervals
+
+#### 题目描述
+
+​		给一堆起止点的区间，求合并之后的区间
+
+#### 解法
+
+​		排序，遍历数组，对满足的情况进行合并，不满足合并的点加入答案		
+
+```c++
+class Solution {
+public:
+    static bool cmp(const vector<int>& a, const vector<int>& b){
+        if(a[0] != b[0])
+            return a[0] < b[0];
+        return a[1] < b[1];
+    }
+    
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        vector<vector<int> > ans;
+        if(intervals.size() == 0)
+            return ans;
+        sort(intervals.begin(), intervals.end(), cmp);
+        vector<int> cur = intervals[0];
+        for(int i=1; i<intervals.size(); i++){
+            if(intervals[i][0] > cur[1]){
+                ans.push_back(cur);
+                cur = intervals[i];
+            }
+            else if(intervals[i][1] > cur[1])
+                cur[1] = intervals[i][1];
+        }
+        ans.push_back(cur);
+        return ans;
+    }
+};
+```
+
+
+
+## 一些hard
+
+### 41. First Missing Positive
+
+#### 题目描述
+
+​		给一个数组，返回第一个没出现的正数
+
+#### 解法
+
+​		把在数组长度范围之内的正数放到它应该在的位置上，然后遍历一遍，去看哪个正数没有出现
+
+```c++
+class Solution {
+public:
+    int firstMissingPositive(vector<int>& nums) {
+        for(int i=0; i<nums.size(); i++){
+            while(nums[i] >=1 && nums[i] <=nums.size() && nums[nums[i] - 1] != nums[i]){
+                int tmp = nums[nums[i] - 1];
+                nums[nums[i] - 1] = nums[i];
+                nums[i] = tmp;
+            }
+        }
+        for(int i=0; i<nums.size(); i++)
+            if(nums[i] != i+1)
+                return i + 1;
+        return nums.size() + 1;
+    }
+};
+```
+
+### 49. Group Anagrams
+
+### 题目描述
+
+​		将组成字母相同的字符串放到一个vector里面
+
+#### 解法
+
+​		哈希
+
+```c++
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        unordered_map<string, vector<string> > hash;
+        for(int i=0; i<strs.size(); i++){
+            string tmp = strs[i];
+            sort(tmp.begin(), tmp.end());
+            hash[tmp].push_back(strs[i]);
+        }
+        vector<vector<string> > ans;
+        for(auto it=hash.begin(); it!=hash.end(); it++){
+            ans.push_back(it->second);
+        }
+        return ans;
+    }
+};
+```
+
+
 
 ## 双指针
 
