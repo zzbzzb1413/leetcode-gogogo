@@ -803,6 +803,10 @@ public:
 
 ## 动态规划
 
+### pass
+
+70
+
 ### * 10. Regular Expression Matching
 
 #### 题目描述
@@ -845,11 +849,19 @@ public:
 
 #### 题目描述
 
+<<<<<<< HEAD
+​		给一个数组，求连续数组的最大和
+
+#### 解法
+
+​		维护一个值，以当前数字为结尾的最大值，然后每一个位置更新一次ans
+=======
 ​		和最大的连续子数组
 
 #### 解法
 
 ​		一遍遍历，每次求出当前位置的最大值，更新答案
+>>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
 
 ```c++
 class Solution {
@@ -869,7 +881,11 @@ public:
 
 #### 题目描述
 
+<<<<<<< HEAD
+​		向右下走路，求方案数。
+=======
 ​		dp问题
+>>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
 
 #### 解法
 
@@ -877,6 +893,13 @@ public:
 class Solution {
 public:
     int uniquePaths(int m, int n) {
+<<<<<<< HEAD
+        vector<vector<int> > dp(m+1, vector<int>(n+1, 0));
+        dp[0][1] = 1;
+        for(int i=1; i<=m; i++){
+            for(int j=1; j<=n; j++)
+                dp[i][j] = dp[i-1][j] + dp[i][j-1];
+=======
         vector<vector<int> > dp(m + 1, vector<int>(n + 1, 0));
         for(int i=1; i<=m; i++){
             for(int j=1; j<=n; j++)
@@ -884,6 +907,7 @@ public:
                     dp[i][j] = 1;
                 else
                     dp[i][j] = dp[i-1][j] + dp[i][j-1];
+>>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
         }
         return dp[m][n];
     }
@@ -892,10 +916,13 @@ public:
 
 
 
+<<<<<<< HEAD
+=======
 
 
 
 
+>>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
 ## 搜索
 
 ###　17. Letter Combinations of a Phone Number
@@ -977,16 +1004,43 @@ public:
 
 #### 题目描述
 
+<<<<<<< HEAD
+​		数字全排列
+
+#### 解法
+
+​		深搜(注释部分可以去重)
+=======
 ​		数字排列 无重复
 
 #### 解法
 
 ​		深搜
+>>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
 
 ```c++
 class Solution {
 public:
     vector<bool> visit;
+<<<<<<< HEAD
+    vector<vector<int> > ans;
+    
+    void dfs(vector<int> &nums, vector<int> tmp, int now, int k){
+        if(now == k){
+            ans.push_back(tmp);
+            return;
+        }
+        
+        // unordered_map<int, int> reach;
+        for(int i=0; i<k; i++){
+            // if(visit[i] || reach.find(nums[i]) != reach.end())
+            if(visit[i])
+                continue;
+            // reach[nums[i]] = 1;
+            visit[i] = true;
+            tmp.push_back(nums[i]);
+            dfs(nums, tmp, now+1, k);
+=======
     void dfs(vector<int> &nums, vector<vector<int> > &ans, vector<int> tmp, int k, int n){
         if(k==n){
             ans.push_back(tmp);
@@ -1001,20 +1055,34 @@ public:
             // hash[nums[i]] = 1;
             tmp.push_back(nums[i]);
             dfs(nums, ans, tmp, k + 1, n);
+>>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
             visit[i] = false;
             tmp.pop_back();
         }
     }
+<<<<<<< HEAD
+    vector<vector<int>> permute(vector<int>& nums) {
+        int n = nums.size();
+        visit = vector<bool>(n, false);
+        vector<int> tmp;
+        dfs(nums, tmp, 0, n);
+=======
     
     vector<vector<int>> permute(vector<int>& nums) {
         vector<vector<int> > ans;
         vector<int> tmp;
         visit = vector<bool>(nums.size(), false);
         dfs(nums, ans, tmp, 0, nums.size());
+>>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
         return ans;
     }
 };
 ```
+<<<<<<< HEAD
+
+
+=======
+>>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
 
 
 
@@ -1075,7 +1143,7 @@ public:
 
 
 
-### 69. sqrt(x)
+### *** 69. sqrt(x)
 
 #### 题目描述
 
@@ -1089,14 +1157,12 @@ public:
 class Solution {
 public:
     int mySqrt(int x) {
-        int l = 0, r = x, mid;
+        int l = 0, r = x;
         while(l < r){
-            mid = (l + r + 1ll) / 2;
-            if(mid == x / mid)
-                return mid;
-            else if(mid > x / mid)
+            int mid = (l + r + 1ll) / 2;
+            if(mid > x / mid)
                 r = mid - 1;
-            else 
+            else
                 l = mid;
         }
         return l;
@@ -1303,6 +1369,17 @@ public:
 };
 ```
 
+<<<<<<< HEAD
+### 42. Trapping Rain Water
+
+#### 题目描述
+
+​		容纳最多的水
+
+#### 解法
+
+​		使用单调栈，如果数字比之前的小，进栈，如果发现大于等于之前的，则出栈，并计算这时候的矩形面积。
+=======
 ### * 42. Trapping Rain Water
 
 #### 题目描述
@@ -1312,12 +1389,26 @@ public:
 #### 解法
 
 ​		单调栈
+>>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
 
 ```c++
 class Solution {
 public:
     int trap(vector<int>& height) {
         stack<int> s;
+<<<<<<< HEAD
+        int ans = 0;
+        for(int i=0; i<height.size(); i++){
+            while(!s.empty() && height[s.top()] <= height[i]){
+                int tmp = s.top();
+                s.pop();
+                if(s.empty())
+                    break;
+                ans += (min(height[i], height[s.top()]) - height[tmp]) * (i - s.top() - 1);
+            }
+            s.push(i);
+        } 
+=======
         int ans = 0, top;
         for(int i=0; i<height.size(); i++){
             while(!s.empty() && height[s.top()] < height[i]){
@@ -1329,6 +1420,7 @@ public:
             }
             s.push(i);
         }
+>>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
         return ans;
     }
 };
@@ -1541,6 +1633,130 @@ public:
                 }
             }
         }
+        return ans;
+    }
+};
+```
+
+## 字符串
+
+###　49. Group Anagrams
+
+#### 题目描述
+
+​		将数组归类
+
+#### 解法
+
+​		将每隔字符串排序，然后哈希
+
+```c++
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        unordered_map<string, vector<string> > hash;
+        for(int i=0; i<strs.size(); i++){
+            string tmp = strs[i];
+            sort(tmp.begin(), tmp.end());
+            hash[tmp].push_back(strs[i]);
+        }
+        vector<vector<string> > ans;
+        for(auto it=hash.begin(); it!=hash.end(); it++){
+            ans.push_back(it->second);
+        }
+        return ans;
+    }
+};
+```
+
+
+
+## 思路题目
+
+### 41. First Missing Positive
+
+#### 题目描述
+
+​		给一个没排序的数组，找到第一个没出现的正整数
+
+#### 解法
+
+​		遍历数组，将数字放到它正确的位置上去。因为最多交换“数组长度”次，所以复杂度并不高。
+
+```c++
+class Solution {
+public:
+    int firstMissingPositive(vector<int>& nums) {
+        int len = nums.size();
+        for(int i=0; i<len; i++){
+            while(nums[i] >= 1 && nums[i] <= len && nums[nums[i]-1] != nums[i]){
+                int tmp = nums[nums[i]-1];
+                nums[nums[i]-1] = nums[i];
+                nums[i] = tmp;
+            }
+        }
+        for(int i=0; i<len; i++)
+            if(nums[i] != i + 1)
+                return i + 1;
+        return len + 1;
+    }
+};
+```
+
+### 55. Jump Game
+
+#### 题目描述
+
+​		给一个数组，数字代表步数。问能不能走到最后一个位置。
+
+#### 解法
+
+​		遍历一遍，保存最右能到达的位置
+
+```c++
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int reach = 0;
+        int dest = nums.size() - 1;
+        for(int i=0; i<=reach; i++){
+            if(reach >= dest)
+                return true;
+            reach = max(reach, i + nums[i]);
+        }
+        return false;
+    }
+};
+```
+
+### 56. Merge Intervals
+
+#### 题目描述
+
+​		合并区间
+
+#### 解法
+
+​		排序，然后合并。考虑两种情况，一种情况是合并，一种是吞并。
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        sort(intervals.begin(), intervals.end());
+        if(intervals.size() == 0)
+            return intervals;
+        vector<vector<int> > ans;
+        vector<int> now = intervals[0];
+        for(int i=1; i<intervals.size(); i++){
+            if(now[1] < intervals[i][0]){
+                ans.push_back(now);
+                now = intervals[i];
+            }
+            else if(now[1] <intervals[i][1])
+                now[1] = intervals[i][1];
+        }
+        ans.push_back(now);
         return ans;
     }
 };
