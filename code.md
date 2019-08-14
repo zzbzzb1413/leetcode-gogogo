@@ -348,7 +348,7 @@ public:
 
 
 
-### 98.  Validate Binary Search Tree
+### **98.  Validate Binary Search Tree
 
 #### 题目描述
 
@@ -892,6 +892,46 @@ public:
 };
 ```
 
+### 91. Decode Ways
+
+#### 题目描述
+
+​		问一串数字能表达为字母串的情况数
+
+#### 解法
+
+​		dp
+
+```c++
+class Solution {
+public:
+    int numDecodings(string s) {
+        if(!s.size() || s[0]=='0')
+            return 0;
+        int len = s.size();
+        vector<int> dp(len + 1, 0);
+        dp[0] = 1, dp[1] = 1;
+        for(int i=1; i<len; i++){
+            if(s[i] == '0'){
+                if(s[i-1]!='1' && s[i-1]!='2')
+                    return 0;
+                else
+                    dp[i+1] = dp[i-1];
+                continue;
+            }
+            int num = (s[i-1] - '0') * 10 + (s[i] - '0');
+            if(num >= 10 && num <= 26)
+                dp[i+1] = dp[i] + dp[i-1];
+            else
+                dp[i+1] = dp[i];
+        }
+        return dp[len];
+    }
+};
+```
+
+
+
 ## 搜索
 
 ###　17. Letter Combinations of a Phone Number
@@ -1015,6 +1055,66 @@ public:
     }
 };
 ```
+### ***79. Word Search
+
+#### 题目描述
+
+​		深搜
+
+####　解法
+
+错了一万次，再做做。
+
+```c++
+class Solution {
+public:
+    // vector<vector<bool> > visit;
+    int m, n;
+    int dx[4] = {1, -1, 0, 0};
+    int dy[4] = {0, 0, 1, -1};
+    
+    bool dfs(vector<vector<char>>& board, string word, int x, int y, int now, int len){
+        if(now == len - 1)
+            return true;
+        for(int i=0; i<4; i++){
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            
+            if(nx<0 || nx>=m || ny<0 || ny>=n || board[nx][ny] != word[now+1])
+                continue;
+            char tmp = board[nx][ny];
+            board[nx][ny] = 0;
+            if(dfs(board, word, nx, ny, now+1, len))
+                return true;
+            board[nx][ny] = tmp;
+        }
+        return false;
+    }
+    
+    bool exist(vector<vector<char>>& board, string word) {
+        if(board.size() == 0)
+            return false;
+        if(word.size() == 0)
+            return true;
+        m = board.size(), n = board[0].size();
+        for(int i=0; i<m; i++){
+            for(int j=0; j<n; j++){
+                if(board[i][j] != word[0])
+                    continue;
+                char tmp = board[i][j];
+                board[i][j] = 0;
+                if(dfs(board, word, i, j, 0, word.size()))
+                    return true;
+                board[i][j] = tmp;
+            }
+        }
+        return false;
+    }
+};
+```
+
+
+
 ## 二分
 
 ### 23. Merge k Sorted Lists
@@ -1330,6 +1430,43 @@ public:
 };
 ```
 
+### ***84. Largest Rectangle in Histogram
+
+#### 题目描述
+
+​		返回最大的矩形。
+
+#### 解法
+
+​		单调栈。
+
+​		栈中的数字一定是单调递增的。新来的数字如果比top小，则将top的数字弹出。根据单调栈的性质，从弹出的top位置到i，都是比弹出的top大的，从新的top到弹出的top，也哦度是比弹出的top大的。
+
+```c++
+class Solution {
+public:
+    int largestRectangleArea(vector<int>& heights) {
+        stack<int> s;
+        int ans = 0;
+        heights.push_back(-1);
+        for(int i=0; i<heights.size(); i++){
+            while(!s.empty() && heights[i] < heights[s.top()]){
+                int cur = s.top();
+                s.pop();
+                if(s.empty())
+                    ans = max(ans, heights[cur] * i);
+                else
+                    ans = max(ans, heights[cur] * ((i - 1) - (s.top() + 1) + 1));
+            }
+            s.push(i);
+        }
+        return ans;
+    }
+};
+```
+
+
+
 
 
 ## 哈希
@@ -1540,6 +1677,84 @@ public:
 };
 ```
 
+### *75. Sort Colors
+
+#### 题目描述
+
+​		只有0,1,2的数组，将其排序成0001111222的形式
+
+#### 解法
+
+​		记录两个指针，从开头看第一个可能不是1的位置，以及从结尾看第一个可能不是2的位置。
+
+```c++
+class Solution {
+public:
+    void sortColors(vector<int>& nums) {
+        int zero = 0, two = nums.size() - 1;
+        for(int i=0; i<=two; i++){
+            if(nums[i] == 0){
+                nums[i] = nums[zero];
+                nums[zero++] = 0;
+            }
+            else if(nums[i] == 2){
+                nums[i] = nums[two];
+                nums[two--] = 2;
+                i--;
+            }
+        }
+    }
+};
+```
+
+
+
+### 76. Minimum Window Substring
+
+#### 题目描述
+
+​		字符串s，t。求s中最短的子字符串，能包含t中的所有字符。
+
+#### 解法
+
+​		双指针，很快！
+
+```c++
+class Solution {
+public:
+    string minWindow(string s, string t) {
+        unordered_map<char, int> str;
+        // vector<int> str(128, 0);
+        int cnt = t.size();
+        for(int i=0; i<t.size(); i++)
+            str[t[i]]++;
+        int st = 0, end = 0, len = INT_MAX, head;
+        bool match = false;
+        for(; end<s.size(); ){
+            if(str[s[end]]> 0)
+                cnt --;
+            str[s[end]]--;
+            end ++;
+            while(cnt == 0){
+                match = true;
+                if(end - st < len){
+                    len = end - st;
+                    head = st;
+                }
+                
+                str[s[st]] ++;
+                if(str[s[st]] > 0)
+                    cnt ++;
+                st++;
+            }
+        }
+        return match? s.substr(head, len): "";
+    }
+};
+```
+
+
+
 ## 字符串
 
 ###　49. Group Anagrams
@@ -1659,6 +1874,35 @@ public:
                 now[1] = intervals[i][1];
         }
         ans.push_back(now);
+        return ans;
+    }
+};
+```
+
+### 78. Subsets
+
+#### 题目描述
+
+​		数字的组合
+
+#### 解法
+
+​		每次ans结尾加一个之前的数组，然后加一个数字，很6
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> subsets(vector<int>& nums) {
+        vector<vector<int> > ans;
+        vector<int> tmp;
+        ans.push_back(tmp);
+        for(int i=0; i<nums.size(); i++){
+            int len = ans.size();
+            for(int j=0; j<len; j++){
+                ans.push_back(ans[j]);
+                ans.back().push_back(nums[i]);
+            }
+        }
         return ans;
     }
 };
