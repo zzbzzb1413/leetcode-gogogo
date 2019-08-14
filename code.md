@@ -849,19 +849,12 @@ public:
 
 #### 题目描述
 
-<<<<<<< HEAD
+
 ​		给一个数组，求连续数组的最大和
 
 #### 解法
 
 ​		维护一个值，以当前数字为结尾的最大值，然后每一个位置更新一次ans
-=======
-​		和最大的连续子数组
-
-#### 解法
-
-​		一遍遍历，每次求出当前位置的最大值，更新答案
->>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
 
 ```c++
 class Solution {
@@ -881,11 +874,7 @@ public:
 
 #### 题目描述
 
-<<<<<<< HEAD
 ​		向右下走路，求方案数。
-=======
-​		dp问题
->>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
 
 #### 解法
 
@@ -893,36 +882,16 @@ public:
 class Solution {
 public:
     int uniquePaths(int m, int n) {
-<<<<<<< HEAD
         vector<vector<int> > dp(m+1, vector<int>(n+1, 0));
         dp[0][1] = 1;
         for(int i=1; i<=m; i++){
             for(int j=1; j<=n; j++)
                 dp[i][j] = dp[i-1][j] + dp[i][j-1];
-=======
-        vector<vector<int> > dp(m + 1, vector<int>(n + 1, 0));
-        for(int i=1; i<=m; i++){
-            for(int j=1; j<=n; j++)
-                if(i==j && j==1)
-                    dp[i][j] = 1;
-                else
-                    dp[i][j] = dp[i-1][j] + dp[i][j-1];
->>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
-        }
         return dp[m][n];
     }
 };
 ```
 
-
-
-<<<<<<< HEAD
-=======
-
-
-
-
->>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
 ## 搜索
 
 ###　17. Letter Combinations of a Phone Number
@@ -1004,25 +973,18 @@ public:
 
 #### 题目描述
 
-<<<<<<< HEAD
 ​		数字全排列
 
-#### 解法
+#### 解法	
 
 ​		深搜(注释部分可以去重)
-=======
+
 ​		数字排列 无重复
-
-#### 解法
-
-​		深搜
->>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
 
 ```c++
 class Solution {
 public:
     vector<bool> visit;
-<<<<<<< HEAD
     vector<vector<int> > ans;
     
     void dfs(vector<int> &nums, vector<int> tmp, int now, int k){
@@ -1040,52 +1002,19 @@ public:
             visit[i] = true;
             tmp.push_back(nums[i]);
             dfs(nums, tmp, now+1, k);
-=======
-    void dfs(vector<int> &nums, vector<vector<int> > &ans, vector<int> tmp, int k, int n){
-        if(k==n){
-            ans.push_back(tmp);
-            return;
-        }    
-        // unordered_map<int, int> hash;
-        for(int i=0; i<nums.size(); i++){
-            // if(visit[i] || hash.find(nums[i]) != hash.end())
-            if(visit[i])
-                continue;
-            visit[i] = true;
-            // hash[nums[i]] = 1;
-            tmp.push_back(nums[i]);
-            dfs(nums, ans, tmp, k + 1, n);
->>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
             visit[i] = false;
             tmp.pop_back();
         }
     }
-<<<<<<< HEAD
     vector<vector<int>> permute(vector<int>& nums) {
         int n = nums.size();
         visit = vector<bool>(n, false);
         vector<int> tmp;
         dfs(nums, tmp, 0, n);
-=======
-    
-    vector<vector<int>> permute(vector<int>& nums) {
-        vector<vector<int> > ans;
-        vector<int> tmp;
-        visit = vector<bool>(nums.size(), false);
-        dfs(nums, ans, tmp, 0, nums.size());
->>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
         return ans;
     }
 };
 ```
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
-
-
-
 ## 二分
 
 ### 23. Merge k Sorted Lists
@@ -1369,17 +1298,8 @@ public:
 };
 ```
 
-<<<<<<< HEAD
-### 42. Trapping Rain Water
 
-#### 题目描述
 
-​		容纳最多的水
-
-#### 解法
-
-​		使用单调栈，如果数字比之前的小，进栈，如果发现大于等于之前的，则出栈，并计算这时候的矩形面积。
-=======
 ### * 42. Trapping Rain Water
 
 #### 题目描述
@@ -1388,15 +1308,12 @@ public:
 
 #### 解法
 
-​		单调栈
->>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
-
+​		使用单调栈，如果数字比之前的小，进栈，如果发现大于等于之前的，则出栈，并计算这时候的矩形面积。
 ```c++
 class Solution {
 public:
     int trap(vector<int>& height) {
         stack<int> s;
-<<<<<<< HEAD
         int ans = 0;
         for(int i=0; i<height.size(); i++){
             while(!s.empty() && height[s.top()] <= height[i]){
@@ -1408,19 +1325,6 @@ public:
             }
             s.push(i);
         } 
-=======
-        int ans = 0, top;
-        for(int i=0; i<height.size(); i++){
-            while(!s.empty() && height[s.top()] < height[i]){
-                int top = s.top();
-                s.pop();
-                if(s.empty())
-                    break;
-                ans += (i - s.top() - 1) * (min(height[i], height[s.top()]) - height[top]);
-            }
-            s.push(i);
-        }
->>>>>>> 64d0eee0855e45867c18d31a54080cf8191f77f4
         return ans;
     }
 };
@@ -1588,7 +1492,7 @@ public:
 
 ## 双指针
 
-### 15. 3Sum
+### ***15. 3Sum
 
 #### 题目描述
 
@@ -1607,8 +1511,6 @@ public:
         int len = nums.size();
         int l, r;
         for(int i=0; i<len-2; i++){
-            cout << i;
-            cout << "???";
             if(i!=0 && nums[i] == nums[i-1])
                 continue;
             l = i + 1, r = nums.size() - 1;
