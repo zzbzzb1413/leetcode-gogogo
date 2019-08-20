@@ -6,9 +6,13 @@ nums.size()是无符号数，要先len  = nums.size(), 再len - 1. 如果减完�
 
 如果需要和数组下一位比较，有需要可以在数组末尾加一个无关的元素。见 无聊的题目 - 38
 
+## 需要做的题
+
+128 140 148
+
 ## 需要留意的题目
 
-33 237 
+33 237
 
 ## 链表
 
@@ -208,6 +212,128 @@ public:
     }
 };
 ```
+
+### *141. Linked List Cycle
+
+#### 题目描述
+
+​		判断链表是否有环
+
+#### 解法
+
+​		快慢指针
+
+​		注意while的条件不能是fast！=slow，因为一开始是相等的
+
+```c++
+class Solution {
+public:
+    bool hasCycle(ListNode *head) {
+        ListNode *fast = head, *slow = head;
+        while(fast){
+            fast = fast->next;
+            slow = slow->next;
+            if(!fast)
+                return false;
+            fast = fast->next;
+            if(fast == slow)
+                return true;
+        }
+        return false;
+    }
+};
+```
+
+### **146. LRU Cache
+
+​		经典的LRU，需要注意边界条件，以及讲更新节点位置操作统一到一个接口中，减少代码长度
+
+```c++
+class LRUCache {
+public:
+    struct Node{
+        int val;
+        int key;
+        bool use;
+        Node *next, *pre;
+        Node(int x):val(x), key(-1), use(false), next(NULL), pre(NULL){}
+    };
+    
+    Node *head, *tail;
+    unordered_map<int, Node*> hash;
+    
+    LRUCache(int capacity) {
+        head = new Node(-1);
+        Node *pre = head;
+        for(int i=1; i<capacity; i++){
+            Node *tmp = new Node(-1);
+            pre->next = tmp;
+            tmp->pre = pre;
+            pre = pre->next;
+        }
+        tail = pre;
+    }
+    
+    void update(Node* node){
+        if(node == head){
+            tail->next = head;
+            head->pre = tail;
+            tail = tail->next;
+            head = head->next;
+            head->pre = NULL;
+            tail->next = NULL;
+//             这次的问题是如果只有一个点，直接给了next 会出现空指针指东西 需要先成环
+            // head = node->next;
+            // head->pre = NULL;
+            // tail->next = node;
+            // node->pre = tail;
+            // tail = node;
+            // tail->next = NULL;
+        }
+        else if(node!=tail){
+            node->pre->next = node->next;
+            node->next->pre = node->pre;
+            tail->next = node;
+            node->pre = tail;
+            tail = node;
+            tail->next = NULL;
+        }
+    }
+    int get(int key) {
+        if(hash.find(key) == hash.end())
+            return -1;
+        
+        update(hash[key]);
+        return hash[key]->val;
+    }
+    
+    void put(int key, int value) {
+        if(hash.find(key)==hash.end()){
+            if(head->use = true)
+                hash.erase(head->key);
+            head->use = true;
+            head->key = key;
+            head->val = value;
+            hash[key] = head;
+            update(head);
+        }
+        else{
+            Node *tmp = hash[key];
+            tmp->val = value;
+            update(tmp);
+        }
+    }
+};
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache* obj = new LRUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
+ */
+```
+
+
 
 ### 160. Intersection of Two Linked Lists
 
@@ -926,6 +1052,27 @@ public:
                 dp[i+1] = dp[i];
         }
         return dp[len];
+    }
+};
+```
+
+### **152. Maximum Product Subarray
+
+​		dp 保存之前的位置的最大和最小
+
+```c++
+class Solution {
+public:
+    int maxProduct(vector<int>& nums) {
+        int ans = nums[0], pre_min = nums[0], pre_max = nums[0], _min = nums[0], _max = nums[0];
+        for(int i=1; i<nums.size(); i++){
+            _min = min(nums[i], min(pre_min * nums[i], pre_max * nums[i]));
+            _max = max(nums[i], max(pre_max * nums[i], pre_min * nums[i]));
+                
+            ans = max(ans, _max);
+            pre_min = _min, pre_max = _max;
+        }
+        return ans;
     }
 };
 ```
