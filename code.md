@@ -6,13 +6,17 @@ nums.size()是无符号数，要先len  = nums.size(), 再len - 1. 如果减完�
 
 如果需要和数组下一位比较，有需要可以在数组末尾加一个无关的元素。见 无聊的题目 - 38
 
+#### Pass
+
+136
+
 ## 需要做的题
 
 128 140 148
 
 ## 需要留意的题目
 
-33 237
+33 237 152 160 139
 
 ## 链表
 
@@ -212,6 +216,40 @@ public:
     }
 };
 ```
+
+### 138. Copy List with Random Pointer
+
+用hash保存新旧节点的对应关系
+
+```C++
+class Solution {
+public:
+    Node* copyRandomList(Node* head) {
+        if(!head) return NULL;
+        Node *ans = new Node(head->val), *pre = ans;
+        unordered_map<Node*, Node*> hash;
+        hash[NULL] = NULL;
+        hash[head] = ans;
+        for(Node *now=head; now!=NULL; now=now->next){
+            if(hash.find(now->next) == hash.end()){
+                Node *tmp = new Node(now->next->val);
+                hash[now->next] = tmp;
+            }
+            pre->next = hash[now->next];
+            
+            if(hash.find(now->random) == hash.end()){
+                Node *tmp = new Node(now->random->val);
+                hash[now->random] = tmp;
+            }
+            pre->random = hash[now->random];
+            pre = pre->next;
+        }
+        return ans;
+    }
+};
+```
+
+
 
 ### *141. Linked List Cycle
 
@@ -586,6 +624,21 @@ public:
 };
 ```
 
+### 104. Maximum Depth of Binary Tree
+
+```c++
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if(!root)
+            return 0;
+        return max(maxDepth(root->left), maxDepth(root->right)) + 1;
+    }
+};
+```
+
+
+
 ### 105. Construct Binary Tree from Preorder and Inorder Traversal
 
 #### 题目描述
@@ -894,6 +947,61 @@ public:
 
 ## 字符串
 
+### 166. Fraction to Recurring Decimal
+
+​		注意细节问题，负号，0之前不能有负号
+
+```c++
+class Solution {
+public:
+    string fractionToDecimal(int numerator, int denominator) {
+        long long n = numerator;
+        long long d = denominator;
+        
+        // 需要考虑负号
+        int minus = 1;
+        if(n < 0){
+            minus *= -1;
+            n = -n;
+        }
+        if(d < 0){
+            minus *= -1;
+            d = -d;
+        }
+        
+        long long a = n / d;
+        long long num = n % d;
+        // a 为 0的时候 无需加负号
+        if(num == 0 && minus == -1 && a != 0)
+            return "-" + to_string(a);
+        else if(num == 0)
+            return to_string(a);
+        unordered_map<int, int> hash;
+        int i = 0, pos;
+        string b = "";
+        while(num){
+            if(hash.find(num) != hash.end()){
+                pos = hash[num];
+                break;
+            }
+            hash[num] = i++;
+            
+            num *= 10;
+            int tmp = num / d;
+            b += (tmp + '0');
+            num = num % d;
+        }
+        if(num){
+            b.insert(b.begin() + pos, '(');
+            b += ')';
+        }
+        if(minus==-1)
+            return "-" + to_string(a) + "." + b;
+        return to_string(a) + "." + b;
+    }
+};
+```
+
 
 
 ## 递推
@@ -919,6 +1027,27 @@ public:
                 return true;
         }
         return false;
+    }
+};
+```
+
+### 198. House Robber
+
+```c++
+class Solution {
+public:
+    int rob(vector<int>& nums) {
+        if(!nums.size())
+            return 0;
+        int n = nums.size();
+        vector<int> dp(n+1, 0);
+        dp[1] = nums[0];
+        int ans = dp[1];
+        for(int i=1; i<n; i++){
+            dp[i + 1] = max(dp[i], dp[i-1] + nums[i]);
+            ans = max(dp[i + 1], ans);
+        }
+        return ans;
     }
 };
 ```
@@ -1055,6 +1184,48 @@ public:
     }
 };
 ```
+
+### 121. Best Time to Buy and Sell Stock
+
+保存当前位置之前的最小值，每次更新答案即可。
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        if(prices.size() <= 1)
+            return 0;
+        int _min = prices[0], ans = 0;
+        for(int i=1; i<prices.size(); i++){
+            ans = max(prices[i] - _min, ans);
+            _min = min(_min, prices[i]);
+        }
+        return ans;
+    }
+};
+```
+
+### 122. Best Time to Buy and Sell Stock II
+
+​		无限次购买，更简单。
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        if(prices.size() <= 1)
+            return 0;
+        int ans = 0;
+        for(int i=1; i<prices.size(); i++){
+            if(prices[i] > prices[i-1])
+                ans += prices[i] - prices[i-1];
+        }
+        return ans;
+    }
+};
+```
+
+
 
 ### **152. Maximum Product Subarray
 
@@ -1256,6 +1427,47 @@ public:
             }
         }
         return false;
+    }
+};
+```
+
+### 200. Number of Islands
+
+深搜
+
+```c++
+class Solution {
+public:
+    int m, n;
+    int dx[4] = {1, -1, 0, 0};
+    int dy[4] = {0, 0, 1, -1};
+    
+    void dfs(vector<vector<char> >& grid, int x, int y){
+        for(int i=0; i<4; i++){
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if(nx < 0 || nx >= m || ny < 0 || ny >= n || grid[nx][ny]=='0')
+                continue;
+            grid[nx][ny] = '0';
+            dfs(grid, nx, ny);
+        }
+    }
+    
+    int numIslands(vector<vector<char>>& grid) {
+        int cnt = 0;
+        if(grid.size() == 0)
+            return cnt;
+        m = grid.size(), n = grid[0].size();
+        for(int i=0; i<m; i++){
+            for(int j=0; j<n; j++){
+                if(grid[i][j] == '1'){
+                    grid[i][j] = '0';
+                    dfs(grid, i, j);
+                    cnt ++;
+                }
+            }
+        }
+        return cnt;
     }
 };
 ```
@@ -1509,6 +1721,61 @@ public:
 };
 ```
 
+### 162. Find Peak Element
+
+​		因为nums[-1] nums[n]都是负无穷，所以一定存在一个peak element，二分就好了。
+
+```c++
+class Solution {
+public:
+    int findPeakElement(vector<int>& nums) {
+        int l = 0, r = nums.size() - 1;
+        while(l < r){
+            int mid = (l + r) / 2;
+            if((mid == 0 && nums[0] > nums[1]) || (mid == nums.size()-1 && nums[nums.size()-1] > nums[nums.size()-2]) || (nums[mid] > nums[mid+1] && nums[mid] > nums[mid-1]))
+                return mid;
+            else if(mid >= 1 && nums[mid] < nums[mid-1])
+                r = mid - 1;
+            else if(mid < nums.size() - 1 && nums[mid] < nums[mid+1])
+                l = mid + 1;
+        }
+        return l;
+    }
+};
+```
+
+### 215. Kth Largest Element in an Array
+
+​		二分
+
+```c++
+class Solution {
+public:
+    int qsort(vector<int> &nums, int l, int r, int k){
+        if(l == r)
+            return nums[l];
+        
+        int i = l, j = r, x = nums[l];
+        while(i < j){
+            while(i < j && nums[j] >= x)
+                j--;
+            nums[i] = nums[j];
+            while(i < j && nums[i] <= x)
+                i++;
+            nums[j] = nums[i];
+        }
+        nums[i] = x;
+        if(i >= k)
+            return qsort(nums, l, i, k);
+        return qsort(nums, i+1, r, k);
+    }
+    int findKthLargest(vector<int>& nums, int k) {
+        int len = nums.size();
+        return qsort(nums, 0, len - 1, len - k);        
+    }
+};
+```
+
 
 
 ## 栈
@@ -1608,6 +1875,40 @@ public:
             s.push(i);
         }
         return ans;
+    }
+};
+```
+
+### 155.Min Stack
+
+```c++
+class MinStack {
+public:
+    stack<int> s, _min;
+    /** initialize your data structure here. */
+    MinStack() {
+        
+    }
+    
+    void push(int x) {
+        s.push(x);
+        if(_min.empty() || _min.top()>=x)
+            _min.push(x);
+    }
+    
+    void pop() {
+        int t = s.top();
+        s.pop();
+        if(t == _min.top())
+            _min.pop();
+    }
+    
+    int top() {
+        return s.top();
+    }
+    
+    int getMin() {
+        return _min.top();
     }
 };
 ```
@@ -2026,7 +2327,7 @@ public:
 };
 ```
 
-### 78. Subsets
+### *78. Subsets
 
 #### 题目描述
 
@@ -2048,6 +2349,29 @@ public:
             for(int j=0; j<len; j++){
                 ans.push_back(ans[j]);
                 ans.back().push_back(nums[i]);
+            }
+        }
+        return ans;
+    }
+};
+```
+
+### 169. Majority Element
+
+```c++
+class Solution {
+public:
+    int majorityElement(vector<int>& nums) {
+        int cnt = 1, ans = nums[0];
+        for(int i=1; i<nums.size(); i++){
+            if(nums[i] == ans)
+                cnt ++;
+            else{
+                cnt --;
+                if(cnt == 0){
+                    ans = nums[i];
+                    cnt = 1;
+                }
             }
         }
         return ans;
